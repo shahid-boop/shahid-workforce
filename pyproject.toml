@@ -1,10 +1,14 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "shahid-assistant-ai"
 version = "0.1.0"
 description = "Shahid Assistant AI - multi-agent AI workforce"
 requires-python = ">=3.12"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 
 dependencies = [
     "fastapi>=0.115",
@@ -30,6 +34,12 @@ dev = [
 postgres = [
     "psycopg[binary]>=3.2",
 ]
+
+[tool.setuptools]
+# Monorepo layout: services/, agents/, tools/ etc. are not one installable
+# package. Install dependencies only; switch to explicit package discovery
+# when a real package structure exists.
+packages = []
 
 [tool.ruff]
 line-length = 100
