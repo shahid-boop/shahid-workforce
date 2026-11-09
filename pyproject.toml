@@ -55,3 +55,6 @@ target-version = "py312"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# langsmith's auto-loaded pytest plugin needs compiled deps some machines block;
+# we don't use langsmith test tracking, so disable it everywhere for determinism.
+addopts = "-p no:langsmith_plugin"
