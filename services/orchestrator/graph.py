@@ -31,13 +31,16 @@ def _next(state: OrchestratorState) -> str:
 
 def build_graph(runner: AgentRunner) -> Any:
     """Compile the orchestrator graph bound to a specific agent runner."""
+
+    async def step(state: OrchestratorState) -> OrchestratorState:
+        # Must be an async def (not a lambda returning a coroutine) so langgraph
+        # awaits it instead of treating the coroutine as the node's return value.
+        return await run_next_step(state, runner)
+
     graph = StateGraph(OrchestratorState)
 
     graph.add_node("plan", apply_plan)
-    graph.add_node(
-        "step",
-        lambda state: run_next_step(state, runner),
-    )
+    graph.add_node("step", step)
     graph.add_node("finish", finish)
 
     graph.add_edge(START, "plan")
