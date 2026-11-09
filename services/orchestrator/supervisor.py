@@ -1,0 +1,1 @@
+﻿"""Top-level task supervision: plan, dispatch specialists, collect verified results."""

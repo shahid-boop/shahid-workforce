@@ -1,0 +1,36 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+dist/
+npm-debug.log*
+
+# Tauri / Rust
+src-tauri/target/
+
+# Tooling
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs and local data
+*.log
+coverage/
+htmlcov/

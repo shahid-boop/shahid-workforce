@@ -1,0 +1,1 @@
+﻿"""Fallback behaviour when the primary provider fails or is unavailable."""

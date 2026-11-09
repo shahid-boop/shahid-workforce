@@ -1,0 +1,79 @@
+﻿# Agent registry configuration.
+# Each entry points to the prompt file in agents/prompts/ and defines role metadata.
+# IDs must stay stable: the orchestrator references agents by id.
+agents:
+  - id: chief_ai_officer
+    name: Chief AI Officer
+    department: Leadership
+    prompt: agents/prompts/chief_ai_officer.md
+    model: null            # null = use MODEL_PRIMARY from environment
+  - id: system_architect
+    name: System Architect
+    department: Development
+    prompt: agents/prompts/system_architect.md
+    model: null
+  - id: ui_ux_designer
+    name: UI/UX Designer
+    department: Development
+    prompt: agents/prompts/ui_ux_designer.md
+    model: null
+  - id: frontend_engineer
+    name: Frontend Engineer
+    department: Development
+    prompt: agents/prompts/frontend_engineer.md
+    model: null
+  - id: backend_engineer
+    name: Backend Engineer
+    department: Development
+    prompt: agents/prompts/backend_engineer.md
+    model: null
+  - id: database_engineer
+    name: Database Engineer
+    department: Development
+    prompt: agents/prompts/database_engineer.md
+    model: null
+  - id: api_integrator
+    name: API Integration Engineer
+    department: Development
+    prompt: agents/prompts/api_integrator.md
+    model: null
+  - id: security_engineer
+    name: Security Engineer
+    department: Quality & Security
+    prompt: agents/prompts/security_engineer.md
+    model: null
+  - id: qa_engineer
+    name: QA Engineer
+    department: Quality & Security
+    prompt: agents/prompts/qa_engineer.md
+    model: null
+  - id: code_reviewer
+    name: Code Review Engineer
+    department: Quality & Security
+    prompt: agents/prompts/code_reviewer.md
+    model: null
+  - id: devops_engineer
+    name: DevOps Engineer
+    department: Infrastructure
+    prompt: agents/prompts/devops_engineer.md
+    model: null
+  - id: automation_engineer
+    name: Automation Engineer
+    department: Infrastructure
+    prompt: agents/prompts/automation_engineer.md
+    model: null
+  - id: research_agent
+    name: Research Agent
+    department: Intelligence
+    prompt: agents/prompts/research_agent.md
+    model: null
+  - id: project_manager
+    name: Project Manager
+    department: Intelligence
+    prompt: agents/prompts/project_manager.md
+    model: null
+  - id: documentation_engineer
+    name: Documentation Engineer
+    department: Intelligence
+    prompt: agents/prompts/documentation_engineer.md
+    model: null

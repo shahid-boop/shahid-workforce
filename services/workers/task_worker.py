@@ -1,0 +1,1 @@
+﻿"""Redis/RQ worker entry point that executes enqueued tasks."""
