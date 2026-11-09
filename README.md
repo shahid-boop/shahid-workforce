@@ -24,9 +24,16 @@ Shahid-Assistant-AI/
 
 ## Status
 
-**Skeleton only.** The repository has been restructured; services, tools and the
-dashboard are placeholders that must be implemented. No feature is considered
-working until its tests pass in CI.
+Incremental build-out (each step ships with tests and a green CI):
+
+- ✅ `services/api` - health + task CRUD with API-key auth (fail-closed)
+- ✅ `agents/` - registry, prompt loading, shared agent interface
+- ✅ `services/orchestrator` - routing, supervisor, LangGraph task graph
+- ✅ `apps/dashboard` - Next.js operator console with `/api` proxy routes
+- ⬜ `services/model_router`, `services/workers`, `tools/`, `sandbox/`,
+  `database/migrations`, `infrastructure/`, remaining tests and docs
+
+No feature is considered working until its tests pass in CI.
 
 ## Requirements
 
