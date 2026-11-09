@@ -13,7 +13,7 @@ license = "MIT"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
-    "sqlalchemy>=2.0",
+    "sqlalchemy>=2.0,<2.1",
     "alembic>=1.13",
     "redis>=5.0",
     "rq>=2.0",
@@ -41,9 +41,16 @@ postgres = [
 # when a real package structure exists.
 packages = []
 
+[tool.ruff.lint]
+# Deterministic rule set (independent of ruff's changing defaults).
+select = ["E4", "E7", "E9", "F", "I", "UP", "RUF", "B"]
+# B008: FastAPI's Depends() in argument defaults is the documented idiom.
+ignore = ["B008"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]

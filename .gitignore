@@ -32,5 +32,7 @@ Thumbs.db
 
 # Logs and local data
 *.log
+*.db
+*.sqlite3
 coverage/
 htmlcov/

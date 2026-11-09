@@ -1,0 +1,53 @@
+"""Pydantic request/response models for the API."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+TaskStatus = Literal[
+    "pending", "queued", "running", "completed", "failed", "cancelled"
+]
+
+
+class TaskCreate(BaseModel):
+    """Payload for creating a task."""
+
+    title: str = Field(min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=10_000)
+
+
+class TaskUpdate(BaseModel):
+    """Payload for updating a task."""
+
+    status: TaskStatus | None = None
+    result: str | None = Field(default=None, max_length=100_000)
+
+
+class TaskOut(BaseModel):
+    """Serialized task."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    title: str
+    description: str | None
+    status: str
+    result: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class TaskList(BaseModel):
+    """A page of tasks."""
+
+    items: list[TaskOut]
+    count: int
+
+
+class HealthOut(BaseModel):
+    """Health probe response."""
+
+    status: str
