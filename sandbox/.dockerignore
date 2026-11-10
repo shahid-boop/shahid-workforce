@@ -1,0 +1,3 @@
+# Sandbox image build context: only the Dockerfile lives here.
+*
+!Dockerfile
