@@ -97,6 +97,26 @@ export async function deleteTask(taskId: string): Promise<void> {
   return request<void>(`/tasks/${taskId}`, { method: "DELETE" });
 }
 
+export async function getTask(taskId: string): Promise<Task> {
+  return request<Task>(`/tasks/${taskId}`);
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  department: string;
+  model: string | null;
+}
+
+export interface AgentList {
+  items: Agent[];
+  count: number;
+}
+
+export async function listAgents(): Promise<AgentList> {
+  return request<AgentList>("/agents");
+}
+
 /** Normalise client/transport errors to an HTTP status plus message. */
 export function errorInfo(error: unknown): { message: string; status: number } {
   if (error instanceof ApiError) {

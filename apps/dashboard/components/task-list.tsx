@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { Task } from "@/lib/api";
 
 interface TaskListProps {
@@ -5,14 +7,16 @@ interface TaskListProps {
   onDelete: (taskId: string) => Promise<void>;
 }
 
-/** Simple task table with status badges and a delete action. */
+/** Simple task table with status badges, detail links and a delete action. */
 export function TaskList({ tasks, onDelete }: TaskListProps) {
   return (
     <ul className="task-list">
       {tasks.map((task) => (
         <li key={task.id} className="task-row">
           <div>
-            <div className="task-title">{task.title}</div>
+            <div className="task-title">
+              <Link href={`/tasks/${task.id}`}>{task.title}</Link>
+            </div>
             {task.description ? (
               <div className="task-desc">{task.description}</div>
             ) : null}

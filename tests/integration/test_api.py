@@ -154,3 +154,37 @@ def test_empty_patch_is_422(tmp_path: Path) -> None:
             f"/tasks/{task_id}", json={}, headers={"X-API-Key": API_KEY}
         )
     assert response.status_code == 422
+
+
+# --- agents -----------------------------------------------------------------
+
+
+def test_agents_reject_missing_key(tmp_path: Path) -> None:
+    with make_client(tmp_path) as client:
+        assert client.get("/agents").status_code == 401
+
+
+def test_agents_lists_registry(tmp_path: Path) -> None:
+    with make_client(tmp_path) as client:
+        response = client.get("/agents", headers={"X-API-Key": API_KEY})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == len(body["items"]) > 0
+    ids = [agent["id"] for agent in body["items"]]
+    assert len(ids) == len(set(ids)), "duplicate agent ids"
+    for agent in body["items"]:
+        assert agent["name"]
+        assert agent["department"]
+        # prompt text must never leak through the API
+        assert "prompt" not in agent
+        assert "prompt_path" not in agent
+
+
+def test_agents_expose_expected_roles(tmp_path: Path) -> None:
+    from agents.registry import agent_ids
+
+    with make_client(tmp_path) as client:
+        body = client.get(
+            "/agents", headers={"X-API-Key": API_KEY}
+        ).json()
+    assert {a["id"] for a in body["items"]} == set(agent_ids())

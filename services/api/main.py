@@ -14,7 +14,7 @@ from database.connection import create_engine_for, create_session_factory
 from database.models import Base
 from services.api.config import Settings, settings_from_env
 from services.api.middleware.security import SecurityHeadersMiddleware
-from services.api.routes import health, tasks
+from services.api.routes import agents, health, tasks
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -51,6 +51,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(tasks.router)
+    app.include_router(agents.router)
     return app
 
 

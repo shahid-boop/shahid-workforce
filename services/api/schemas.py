@@ -51,3 +51,19 @@ class HealthOut(BaseModel):
     """Health probe response."""
 
     status: str
+
+
+class AgentOut(BaseModel):
+    """Serialized specialist agent (prompt text stays server-side)."""
+
+    id: str
+    name: str
+    department: str
+    model: str | None = None
+
+
+class AgentList(BaseModel):
+    """All configured agents."""
+
+    items: list[AgentOut]
+    count: int
