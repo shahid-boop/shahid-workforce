@@ -1,7 +1,5 @@
 # Agents
 
-> Skeleton document — expand as the registry is implemented.
-
 ## Specialists (15)
 
 | ID | Name | Department |
@@ -34,3 +32,31 @@
 - Agent IDs are stable; the orchestrator references agents by ID.
 - Every plan ends with independent code-review and QA gates.
 - Prompts must not contain secrets or credentials.
+
+## Validation (registry)
+
+`load_agents()` fails fast on:
+
+- missing config file or invalid YAML;
+- an entry missing `id`/`name`/`department`/`prompt`;
+- duplicate agent ids;
+- a prompt file that does not exist;
+- an empty roster.
+
+Each definition resolves its prompt to an absolute path; the API's
+`GET /agents` endpoint exposes only `id`, `name`, `department` and `model` —
+prompt text never leaves the server.
+
+## Usage
+
+```python
+from agents.registry import load_agents, get_agent
+
+roster = load_agents()            # list[AgentDefinition]
+architect = get_agent("system_architect")
+print(architect.prompt)           # prompt text from agents/prompts/
+```
+
+```bash
+curl -H "X-API-Key: $KEY" http://127.0.0.1:8000/agents
+```

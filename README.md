@@ -26,12 +26,17 @@ Shahid-Assistant-AI/
 
 Incremental build-out (each step ships with tests and a green CI):
 
-- ✅ `services/api` - health + task CRUD with API-key auth (fail-closed)
+- ✅ `services/api` - health + task CRUD + agent roster with API-key auth (fail-closed)
 - ✅ `agents/` - registry, prompt loading, shared agent interface
 - ✅ `services/orchestrator` - routing, supervisor, LangGraph task graph
-- ✅ `apps/dashboard` - Next.js operator console with `/api` proxy routes
-- ⬜ `services/model_router`, `services/workers`, `tools/`, `sandbox/`,
-  `database/migrations`, `infrastructure/`, remaining tests and docs
+- ✅ `apps/dashboard` - Next.js console: task board, task detail/progress, agents page, `/api` proxy routes
+- ✅ `services/model_router` - 6 providers, budgets, fallback with billing preflight
+- ✅ `services/workers` - scheduler (memory + Redis) and task worker with retries
+- ✅ `tools/` - filesystem (jailed), terminal, database, github, testing, browser
+- ✅ `sandbox/` - hardened Docker execution policy with local opt-in
+- ✅ `database/migrations` - Alembic pipeline with ORM drift tests
+- ✅ `infrastructure/` - compose stack (api/worker/redis/dashboard), monitoring, logging
+- ⬜ Final: security + e2e tests, docs polish
 
 No feature is considered working until its tests pass in CI.
 
