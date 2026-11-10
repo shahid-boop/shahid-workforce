@@ -73,7 +73,7 @@ docker compose up --build
 ## Tests
 
 ```bash
-pytest -q                # unit + integration (190+ tests)
+pytest -q                # unit + integration + security + e2e (219+ tests)
 ruff check .             # lint
 mypy .                   # type check (runs in CI)
 cd apps/dashboard

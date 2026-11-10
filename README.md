@@ -36,7 +36,8 @@ Incremental build-out (each step ships with tests and a green CI):
 - ✅ `sandbox/` - hardened Docker execution policy with local opt-in
 - ✅ `database/migrations` - Alembic pipeline with ORM drift tests
 - ✅ `infrastructure/` - compose stack (api/worker/redis/dashboard), monitoring, logging
-- ⬜ Final: security + e2e tests, docs polish
+- ✅ `tests/` - security regressions (auth, headers, jail, scrub) + e2e full flow (API→worker→orchestrator)
+- ✅ `docs/` - architecture, setup, security, deployment, agents (with regression tests)
 
 No feature is considered working until its tests pass in CI.
 
