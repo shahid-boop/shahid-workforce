@@ -6,6 +6,7 @@ of them breaks, this file must fail before anything ships.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -116,11 +117,15 @@ def test_filesystem_jail_rejects_escapes(tmp_path: Path) -> None:
     tool = FileSystemTool(root=tmp_path)
     # On POSIX this is rejected as absolute; on Windows it resolves outside
     # the root and is rejected as an escape. Either way it never succeeds.
-    for attempt in ("/etc/passwd", "../outside.txt", "..\\..\\windows"):
-        with pytest.raises(
-            Exception, match=r"absolute paths|escapes the workspace root"
-        ):
-            tool._resolve(attempt)
+    with pytest.raises(Exception, match=r"absolute paths|escapes the workspace root"):
+        tool._resolve("/etc/passwd")
+    with pytest.raises(Exception, match=r"escapes the workspace root"):
+        tool._resolve("../outside.txt")
+    # Backslash traversal only means "up a directory" on Windows; on POSIX
+    # backslashes are literal filename characters, so the path stays inside.
+    if os.name == "nt":
+        with pytest.raises(Exception, match=r"escapes the workspace root"):
+            tool._resolve("..\\..\\windows")
 
 
 def test_filesystem_allows_inside_root(tmp_path: Path) -> None:
