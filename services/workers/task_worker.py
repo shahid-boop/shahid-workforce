@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from database.connection import create_engine_for, create_session_factory
 from database.repositories import task_repository
+from services.orchestrator.state import StepOutput
 from services.orchestrator.supervisor import AgentRunner
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ class TaskExecutionError(RuntimeError):
     """The worker could not execute the requested task."""
 
 
-def compose_result(outputs: Sequence[dict[str, str]]) -> str:
+def compose_result(outputs: Sequence[StepOutput]) -> str:
     """Render orchestrator outputs as one readable result string."""
     sections = [f"## {item['agent_id']}\n{item['output']}" for item in outputs]
     return "\n\n".join(sections)
