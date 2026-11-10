@@ -1,0 +1,86 @@
+# Full-stack deployment: API, worker, Redis and the dashboard.
+#
+# Usage:
+#   cp .env.example .env          # then set WORKFORCE_API_KEY
+#   docker compose up --build
+#
+# The dashboard only talks to the API through its server-side proxy routes,
+# so the browser never needs the API key or direct access to port 8000.
+
+name: shahid-workforce
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [internal]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: infrastructure/api.Dockerfile
+    environment:
+      WORKFORCE_ENV: ${WORKFORCE_ENV:-production}
+      WORKFORCE_API_KEY: ${WORKFORCE_API_KEY:?set WORKFORCE_API_KEY in .env}
+      WORKFORCE_DATABASE_URL: ${WORKFORCE_DATABASE_URL:-sqlite:////data/workforce.db}
+      WORKFORCE_REDIS_URL: redis://redis:6379/0
+      WORKFORCE_CORS_ORIGINS: ${WORKFORCE_CORS_ORIGINS:-http://localhost:3000}
+    volumes:
+      - api-data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [internal]
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infrastructure/api.Dockerfile
+    command: ["python", "-m", "services.workers.task_worker"]
+    environment:
+      WORKFORCE_API_KEY: ${WORKFORCE_API_KEY:?set WORKFORCE_API_KEY in .env}
+      WORKFORCE_DATABASE_URL: ${WORKFORCE_DATABASE_URL:-sqlite:////data/workforce.db}
+      WORKFORCE_REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks: [internal]
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: infrastructure/dashboard.Dockerfile
+      args:
+        WORKFORCE_API_BASE_URL: ${WORKFORCE_API_BASE_URL:-http://api:8000}
+    environment:
+      WORKFORCE_API_KEY: ${WORKFORCE_API_KEY:?set WORKFORCE_API_KEY in .env}
+      WORKFORCE_API_BASE_URL: ${WORKFORCE_API_BASE_URL:-http://api:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [internal]
+    restart: unless-stopped
+
+volumes:
+  api-data:
+
+networks:
+  internal:
+    driver: bridge

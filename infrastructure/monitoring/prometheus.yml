@@ -1,0 +1,24 @@
+# Prometheus scrape configuration for the workforce stack.
+# The API exposes /metrics in production deployments; Redis is monitored
+# via redis_exporter if you add it to docker-compose.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  - job_name: workforce-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          service: api
+
+  - job_name: redis
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+        labels:
+          service: redis
