@@ -1,6 +1,7 @@
 # Shahid Assistant AI
 
 [![CI](https://github.com/shahid-boop/shahid-workforce/actions/workflows/ci.yml/badge.svg)](https://github.com/shahid-boop/shahid-workforce/actions/workflows/ci.yml)
+<a href="https://trendshift.io/repositories/82054?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-82054" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/82054" alt="morluto%2Frea | Trendshift" width="250" height="55"/></a>
 
 Windows 11 desktop AI assistant with a multi-agent AI workforce: create a
 task, a supervised chain of specialist AI agents plans, executes and
@@ -79,10 +80,17 @@ reviews it — with a local dashboard to drive everything.
 
 ## Quick start (Windows)
 
-Double-click **`start-dev.bat`** — it sets up `.venv`, runs migrations,
-starts the API (`:8000`) + dashboard (`:3000`) and opens the browser.
-Tasks auto-run inline in development (no Redis needed). See
-[`docs/setup.md`](docs/setup.md) for the manual steps, other platforms
+**Option A — packaged EXE:** download `ShahidWorkforce-win64.zip` from
+[Releases](../../releases), extract, double-click
+`ShahidWorkforce\ShahidWorkforce.exe`. It starts the server on
+`http://127.0.0.1:8756`, opens the dashboard, stores its database and
+generated API key under `%LOCALAPPDATA%\ShahidWorkforce`, and executes
+tasks inline (no Redis, no Python, no Node needed).
+
+**Option B — from source:** double-click **`start-dev.bat`** — it sets
+up `.venv`, runs migrations, starts the API (`:8000`) + dashboard
+(`:3000`) and opens the browser. Tasks auto-run inline in development.
+See [`docs/setup.md`](docs/setup.md) for manual steps, other platforms
 and LLM key setup.
 
 ## Repository structure

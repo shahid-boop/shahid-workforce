@@ -9,6 +9,39 @@
 
 ## One-click start (Windows)
 
+### Packaged EXE (end users)
+
+Download `ShahidWorkforce-win64.zip` from the repository's Releases
+page, extract it anywhere and run `ShahidWorkforce\ShahidWorkforce.exe`:
+
+- one process serves the dashboard **and** the API on
+  `http://127.0.0.1:8756` (browser opens automatically);
+- first launch generates an API key in
+  `%LOCALAPPDATA%\ShahidWorkforce\config.json` and creates the SQLite
+  database in the same folder — both persist between launches;
+- tasks execute inline (`WORKFORCE_AUTO_RUN=1`); no Redis/Python/Node;
+- provider keys are added from the Settings page as usual. An explicit
+  `WORKFORCE_*` environment variable overrides any derived setting;
+- stop the app by closing its console window.
+
+Build it yourself (from source, Node + Python required):
+
+```bash
+cd apps/dashboard
+npm ci
+npm run build:static          # stop `npm run dev` first on Windows
+cd ..\..
+pip install pyinstaller
+pyinstaller packaging/ShahidWorkforce.spec --distpath dist --workpath build --noconfirm
+dist\ShahidWorkforce\ShahidWorkforce.exe
+```
+
+CI runs the same build, smoke-tests it (health + dashboard + key
+injection) and attaches the zip to the GitHub Release
+(`.github/workflows/release.yml`, manual dispatch or `v*` tag).
+
+### From source
+
 Double-click **`start-dev.bat`** in the repo root. It:
 
 1. creates `.venv` / installs dependencies on first run;
