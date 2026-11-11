@@ -7,6 +7,16 @@ Windows 11 desktop AI assistant with a multi-agent AI workforce: create a
 task, a supervised chain of specialist AI agents plans, executes and
 reviews it — with a local dashboard to drive everything.
 
+## Screenshots
+
+| Task board | Task detail & progress |
+|---|---|
+| ![Task board](docs/images/tasks-board.jpg) | ![Task detail](docs/images/task-detail.jpg) |
+
+| Agents roster | Settings (provider keys) |
+|---|---|
+| ![Agents](docs/images/agents.jpg) | ![Settings](docs/images/settings-keys.jpg) |
+
 ## Features
 
 ### Multi-agent workforce
@@ -74,24 +84,108 @@ reviews it — with a local dashboard to drive everything.
   structured logging (`infrastructure/`).
 
 ### Quality
-- **289 tests** (unit, integration, security, e2e, docs regressions) and
-  a 2-job CI (Python: ruff + mypy + pytest; Dashboard: tsc + build).
+- **300 tests** (unit, integration, security, e2e, docs regressions) and
+  a 2-job CI (Python: ruff + mypy + pytest; Dashboard: tsc + build +
+  static export).
 - No feature ships until its tests pass in CI.
 
-## Quick start (Windows)
+## Installation & setup
 
-**Option A — packaged EXE:** download `ShahidWorkforce-win64.zip` from
-[Releases](../../releases), extract, double-click
-`ShahidWorkforce\ShahidWorkforce.exe`. It starts the server on
-`http://127.0.0.1:8756`, opens the dashboard, stores its database and
-generated API key under `%LOCALAPPDATA%\ShahidWorkforce`, and executes
-tasks inline (no Redis, no Python, no Node needed).
+Three ways to run it — pick whichever is easiest for you.
 
-**Option B — from source:** double-click **`start-dev.bat`** — it sets
-up `.venv`, runs migrations, starts the API (`:8000`) + dashboard
-(`:3000`) and opens the browser. Tasks auto-run inline in development.
-See [`docs/setup.md`](docs/setup.md) for manual steps, other platforms
-and LLM key setup.
+### Option A — Windows EXE (no Python, no Node, easiest)
+
+1. Download **`ShahidWorkforce-win64.zip`** from the
+   [Releases page](../../releases).
+2. Extract the zip anywhere (Desktop, `C:\Program Files\ShahidWorkforce`, …).
+3. Double-click **`ShahidWorkforce\ShahidWorkforce.exe`**.
+4. A console window opens and the dashboard starts automatically at
+   **http://127.0.0.1:8756** (your browser opens by itself).
+
+That's it — no installers, no terminal. The EXE ships the API + dashboard
+in one process and:
+
+- creates its database and a generated API key under
+  `%LOCALAPPDATA%\ShahidWorkforce` on first launch (persists between runs);
+- executes tasks inline automatically (no Redis/worker needed);
+- stop the app by closing its console window.
+
+> **Optional:** set provider keys from the **Settings** page in the
+> browser (see [Add an LLM key](#add-an-llm-key-no-terminal-needed)) —
+> no terminal required.
+
+### Option B — from source with one script (Windows)
+
+1. Install [Python 3.12+](https://www.python.org/downloads/) and
+   [Node.js 22+](https://nodejs.org/) (tick **"Add to PATH"** in the
+   Python installer).
+2. Clone and run the starter:
+
+```bat
+git clone https://github.com/shahid-boop/shahid-workforce.git
+cd shahid-workforce
+start-dev.bat
+```
+
+`start-dev.bat` creates `.venv`, installs dependencies, runs database
+migrations, starts the API (`:8000`) + dashboard (`:3000`) and opens the
+browser. Tasks auto-run in development — no Redis required.
+
+### Option C — manual terminal setup (Windows / macOS / Linux)
+
+```bash
+# 1. Clone
+git clone https://github.com/shahid-boop/shahid-workforce.git
+cd shahid-workforce
+
+# 2. Python environment + dependencies
+python -m venv .venv
+# Windows:   .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -e ".[dev]"
+
+# 3. Database migrations (SQLite by default)
+alembic upgrade head
+
+# 4. Start the API
+export WORKFORCE_API_KEY=local-dev-key      # Windows PowerShell: $env:WORKFORCE_API_KEY="local-dev-key"
+python -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
+
+# 5. In a second terminal: start the dashboard
+cd apps/dashboard
+npm ci
+npm run dev                                  # http://localhost:3000
+```
+
+Open **http://localhost:3000** — the dashboard talks to the API on
+`:8000`. Full details, Docker stack and production notes:
+[`docs/setup.md`](docs/setup.md).
+
+### Add an LLM key (no terminal needed)
+
+Tasks run with a key-less template fallback out of the box. For **real
+LLM output**:
+
+1. Open **Settings** in the dashboard (`/settings`).
+2. Paste a key for any provider and hit **Save** — e.g. a free
+   [Google AI Studio](https://aistudio.google.com/apikey) Gemini key,
+   a free [Groq](https://console.groq.com/keys) key, or an OpenRouter key.
+3. Create a task — it executes immediately with the real model chain
+   (Gemini free tier → Groq → OpenRouter `:free` fallbacks). No restart.
+
+Keys are stored server-side, shown only as a masked prefix, and can be
+removed with **Remove** at any time. Advanced users can instead set
+`WORKFORCE_GEMINI_API_KEY` / `WORKFORCE_GROQ_API_KEY` / … environment
+variables (they override saved keys) — see `docs/setup.md`.
+
+### Run your first task
+
+1. On the **Tasks** page, type a goal: *"Summarize this repo's README
+   in 3 bullet points"* → **Create task**.
+2. The task auto-runs: a supervisor plans specialist steps, agents
+   execute them, `code_reviewer` + `qa_engineer` gates run at the end.
+3. Open the task to watch the live progress pipeline; the result appears
+   when the status turns **completed**.
 
 ## Repository structure
 
@@ -133,6 +227,7 @@ Incremental build-out (each step ships with tests and a green CI):
 - ✅ `infrastructure/` - compose stack (api/worker/redis/dashboard), monitoring, logging
 - ✅ `tests/` - security regressions (auth, headers, jail, scrub) + e2e full flow (API→worker→orchestrator)
 - ✅ `docs/` - architecture, setup, security, deployment, agents (with regression tests)
+- ✅ **Windows EXE release** - PyInstaller onedir build + GitHub Actions release workflow with smoke test (`packaging/`, `.github/workflows/release.yml`)
 
 No feature is considered working until its tests pass in CI.
 
@@ -142,10 +237,6 @@ No feature is considered working until its tests pass in CI.
 - Node.js 22+
 - Docker (for the code sandbox)
 - Redis + PostgreSQL (for queued tasks and hosted persistence)
-
-## Setup
-
-See [docs/setup.md](docs/setup.md).
 
 ## Security
 
