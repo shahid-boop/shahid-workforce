@@ -290,7 +290,7 @@ def test_complete_messages_returns_llm_text(monkeypatch: pytest.MonkeyPatch) -> 
     output = asyncio.run(complete_messages(USER_MESSAGES))
 
     assert output == "structured plan"
-    assert captured["model"] == "gemini/gemini-2.5-flash"
+    assert captured["model"] == litellm_model(configured_primary())
 
 
 def test_complete_messages_honours_agent_model_override(
@@ -337,7 +337,7 @@ def test_default_runner_calls_llm_when_key_present(monkeypatch: pytest.MonkeyPat
     output = asyncio.run(default_agent_runner(definition, ctx))
 
     assert output == "real llm output"
-    assert captured["model"] == "gemini/gemini-2.5-flash"
+    assert captured["model"] == litellm_model(configured_primary())
     messages = cast("list[dict[str, str]]", captured["messages"])
     assert messages[0]["role"] == "system"
     assert definition.prompt in messages[0]["content"]

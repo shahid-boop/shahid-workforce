@@ -7,6 +7,32 @@
 - Docker (for the code sandbox; optional for local development)
 - Redis (for queued/worker mode; optional — an in-memory scheduler is used in tests)
 
+## One-click start (Windows)
+
+Double-click **`start-dev.bat`** in the repo root. It:
+
+1. creates `.venv` / installs dependencies on first run;
+2. applies database migrations (`alembic upgrade head`);
+3. starts the API on `http://127.0.0.1:8000` (this window) and the
+   dashboard in a second window (`http://localhost:3000`);
+4. opens the dashboard in your default browser.
+
+All required `WORKFORCE_*` variables are set by the script, including
+`WORKFORCE_AUTO_RUN=1` (see below). Close the windows to stop the servers.
+
+## Task auto-run (development)
+
+When `Settings.auto_run` is on, `POST /tasks` executes the task **inline,
+right after the response** — no Redis, no worker process. The dev default
+is on (`WORKFORCE_ENV != "production"`), so a freshly started server runs
+tasks end-to-end with the real LLM chain (or the template fallback when no
+provider key exists).
+
+- `WORKFORCE_AUTO_RUN=0` forces queued mode (tasks wait for
+  `python -m services.workers.task_worker` + Redis).
+- Production defaults to queued mode; set `WORKFORCE_AUTO_RUN=1` to
+  override.
+
 ## Local development
 
 ```bash
@@ -75,8 +101,8 @@ export OPENAI_API_KEY=...        # or ANTHROPIC_API_KEY / MISTRAL_API_KEY
 Model selection (defaults are free-tier models; override per environment):
 
 ```bash
-export WORKFORCE_MODEL_PRIMARY=google/gemini-2.5-flash
-export WORKFORCE_MODEL_FALLBACKS=groq/llama-3.3-70b-versatile,openrouter/nvidia/nemotron-3.5-lightning:free
+export WORKFORCE_MODEL_PRIMARY=google/gemini-3.6-flash
+export WORKFORCE_MODEL_FALLBACKS=google/gemini-3.5-flash-lite,groq/llama-3.3-70b-versatile,openrouter/nvidia/nemotron-3.5-lightning:free
 ```
 
 The chain drops models whose key is missing, rotates on rate limits /

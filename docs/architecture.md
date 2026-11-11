@@ -32,9 +32,13 @@ Dashboard -> API -> Orchestrator (plan) -> Workers (execute) -> Tools/Sandbox
 1. A task is created via `POST /tasks` (status `pending`).
 2. The orchestrator routes the task to specialist agents, appending the
    mandatory `code_reviewer` and `qa_engineer` gates at the end of every plan.
-3. The worker claims queued jobs, executes steps through the model router
-   (budget preflight, fallback rotation) and tool registry, and writes status
-   transitions back to the database.
+3. **Development (`Settings.auto_run`, the default when `WORKFORCE_ENV` is
+   not `production`):** the API executes the task inline right after the
+   response via a FastAPI background task - no Redis or worker needed.
+   **Production / `WORKFORCE_AUTO_RUN=0`:** the worker claims queued jobs,
+   executes steps through the model router (budget preflight, fallback
+   rotation) and tool registry, and writes status transitions back to the
+   database.
 4. The dashboard polls `/api/tasks/{id}` for live progress.
 
 ## Key decisions

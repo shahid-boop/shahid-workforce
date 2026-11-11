@@ -49,10 +49,12 @@ logger = logging.getLogger(__name__)
 # Providers with no free tier are listed so the catalog stays complete.
 FREE_TIER_MODELS: dict[str, tuple[str, ...]] = {
     "google": (
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-3-flash",
+        # gemini-3.8-flash is also free but timed out consistently here,
+        # so it stays out of the default chain.
+        "gemini-3.6-flash",
+        "gemini-3.5-flash-lite",
         "gemini-3.1-flash-lite",
+        "gemini-3.8-flash",
     ),
     "groq": (
         "llama-3.3-70b-versatile",
@@ -72,8 +74,12 @@ FREE_TIER_MODELS: dict[str, tuple[str, ...]] = {
     "ollama": ("llama3.2", "qwen2.5-coder"),
 }
 
-DEFAULT_PRIMARY = "google/gemini-2.5-flash"
+DEFAULT_PRIMARY = "google/gemini-3.6-flash"
 DEFAULT_FALLBACKS: tuple[str, ...] = (
+    # Same key, different quota pool: flash-lite keeps the chain alive when
+    # the primary hits the free-tier rate limit.
+    "google/gemini-3.5-flash-lite",
+    "google/gemini-3.1-flash-lite",
     "groq/llama-3.3-70b-versatile",
     "openrouter/nvidia/nemotron-3.5-lightning:free",
 )

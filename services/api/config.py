@@ -16,6 +16,9 @@ class Settings:
     api_key: str | None = None
     database_url: str = "sqlite:///./workforce.db"
     cors_origins: tuple[str, ...] = DEFAULT_CORS_ORIGINS
+    # Development executes tasks inline after creation; production leaves
+    # them queued for the Redis/RQ worker.
+    auto_run: bool = False
 
     @property
     def is_production(self) -> bool:
@@ -28,11 +31,18 @@ def settings_from_env() -> Settings:
     origins = tuple(
         origin.strip() for origin in origins_raw.split(",") if origin.strip()
     ) or DEFAULT_CORS_ORIGINS
+    env = os.environ.get("WORKFORCE_ENV", "development")
+    auto_run_raw = os.environ.get("WORKFORCE_AUTO_RUN", "").strip().lower()
+    if auto_run_raw:
+        auto_run = auto_run_raw in ("1", "true", "yes", "on")
+    else:
+        auto_run = env != "production"
     return Settings(
-        env=os.environ.get("WORKFORCE_ENV", "development"),
+        env=env,
         api_key=os.environ.get("WORKFORCE_API_KEY") or None,
         database_url=os.environ.get(
             "WORKFORCE_DATABASE_URL", "sqlite:///./workforce.db"
         ),
         cors_origins=origins,
+        auto_run=auto_run,
     )

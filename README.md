@@ -22,6 +22,14 @@ Shahid-Assistant-AI/
 └── .github/workflows/    # CI
 ```
 
+## Quick start (Windows)
+
+Double-click **`start-dev.bat`** — it sets up `.venv`, runs migrations,
+starts the API (`:8000`) + dashboard (`:3000`) and opens the browser.
+Tasks auto-run inline in development (no Redis needed). See
+[`docs/setup.md`](docs/setup.md) for the manual steps, other platforms
+and LLM key setup.
+
 ## Status
 
 Incremental build-out (each step ships with tests and a green CI):
