@@ -19,6 +19,7 @@ export default function RootLayout({
           <nav className="app-nav">
             <Link href="/">Tasks</Link>
             <Link href="/agents">Agents</Link>
+            <Link href="/settings">Settings</Link>
           </nav>
         </header>
         <main className="app-main">{children}</main>

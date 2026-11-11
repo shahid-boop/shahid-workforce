@@ -84,6 +84,22 @@ timeouts / 5xx / auth errors, and aborts immediately on request-shape
 errors. API keys are passed straight to the provider, never logged and
 redacted from any error message.
 
+### Adding keys from the dashboard
+
+The same keys can be managed **manually** at **http://localhost:3000/settings**
+(no terminal needed): paste a key per provider (Gemini, Groq, OpenRouter,
+Ollama, OpenAI, Anthropic, Mistral), hit Save, Remove to revoke. Keys are
+stored in the `provider_credentials` table of the configured database and
+resolved in this order:
+
+1. environment variable (`GEMINI_API_KEY`, `GROQ_API_KEY`, ...) - always wins;
+2. key saved on the Settings page.
+
+Ollama needs no key: save its base URL (default `http://localhost:11434`)
+and the provider becomes available; set `OLLAMA_BASE_URL` for an
+environment-only setup. New keys take effect for the next task without a
+restart.
+
 ## Database migrations
 
 ```bash

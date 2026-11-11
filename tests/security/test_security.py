@@ -44,6 +44,10 @@ def test_all_private_endpoints_reject_missing_key(tmp_path: Path) -> None:
         # /agents is read-only: POST is 405, and auth still guards the GET.
         assert client.get("/agents").status_code == 401
         assert client.post("/agents").status_code == 405
+        # Settings hold provider keys: every verb requires the API key.
+        assert client.get("/settings/providers").status_code == 401
+        assert client.put("/settings/providers/groq", json={"api_key": "x"}).status_code == 401
+        assert client.delete("/settings/providers/groq").status_code == 401
 
 
 def test_all_private_endpoints_reject_wrong_key(tmp_path: Path) -> None:

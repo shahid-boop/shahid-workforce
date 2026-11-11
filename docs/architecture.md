@@ -10,7 +10,7 @@ Shahid Workforce has three layers:
    browser.
 2. **Services** (`services/`) — FastAPI API (`services/api`), orchestrator
    (`services/orchestrator`, LangGraph supervisor + routing), model router
-   (`services/model_router`, 6 providers with budgets/fallback), background
+   (`services/model_router`, 7 providers with budgets/fallback), background
    workers (`services/workers`, scheduler + task worker with retries).
 3. **Agents & tools** (`agents/`, `tools/`, `sandbox/`) — 15 specialist roles
    loaded from `agents/configs/agents.yaml`, allowlisted tools (filesystem,

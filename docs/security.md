@@ -9,6 +9,10 @@
   default allows only `http://localhost:5173`.
 - The dashboard holds the API key **server-side only** (Next.js route
   handlers / server code). Browser code only ever calls `/api/*` proxies.
+- Provider keys saved on the Settings page (`/settings`) live in the
+  `provider_credentials` database table - never in Git, never logged.
+  The API returns only a 4-char masked prefix, all routes require
+  `X-API-Key`, and environment variables always override stored keys.
 - Response headers: `X-Content-Type-Options: nosniff`, `X-Frame-Options:
   DENY`, `Referrer-Policy: no-referrer`, `Cross-Origin-Opener-Policy:
   same-origin` via `SecurityHeadersMiddleware`.

@@ -117,6 +117,42 @@ export async function listAgents(): Promise<AgentList> {
   return request<AgentList>("/agents");
 }
 
+export interface ProviderStatus {
+  provider: string;
+  configured: boolean;
+  source: "env" | "stored" | null;
+  key_masked: string | null;
+  base_url: string | null;
+  stored: boolean;
+}
+
+export interface ProviderStatusList {
+  items: ProviderStatus[];
+  count: number;
+}
+
+export async function listProviderStatuses(): Promise<ProviderStatusList> {
+  return request<ProviderStatusList>("/settings/providers");
+}
+
+export async function saveProviderKey(
+  provider: string,
+  payload: { api_key?: string; base_url?: string },
+): Promise<ProviderStatus> {
+  return request<ProviderStatus>(`/settings/providers/${provider}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteProviderKey(
+  provider: string,
+): Promise<ProviderStatus> {
+  return request<ProviderStatus>(`/settings/providers/${provider}`, {
+    method: "DELETE",
+  });
+}
+
 /** Normalise client/transport errors to an HTTP status plus message. */
 export function errorInfo(error: unknown): { message: string; status: number } {
   if (error instanceof ApiError) {

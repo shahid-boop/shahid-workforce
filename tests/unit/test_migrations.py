@@ -45,12 +45,18 @@ def test_upgrade_head_creates_tasks_table(db_path: Path) -> None:
     assert "alembic_version" in tables
 
 
+def test_upgrade_head_creates_provider_credentials_table(db_path: Path) -> None:
+    command.upgrade(make_config(db_path), "head")
+    assert "provider_credentials" in table_names(db_path)
+
+
 def test_downgrade_base_removes_tasks_table(db_path: Path) -> None:
     command.upgrade(make_config(db_path), "head")
     command.downgrade(make_config(db_path), "base")
 
     tables = table_names(db_path)
     assert "tasks" not in tables
+    assert "provider_credentials" not in tables
     # alembic_version intentionally survives at base so upgrades stay tracked.
 
 
@@ -114,5 +120,9 @@ def test_revision_history_is_linear() -> None:
     revisions = list(script.walk_revisions())
     roots = [rev for rev in revisions if rev.down_revision is None]
     assert len(roots) == 1
-    assert len(revisions) == 1
+    assert len(revisions) == 2
     assert roots[0].revision == "0001_initial_tasks"
+    head = next(
+        rev for rev in revisions if rev.revision == "0002_provider_credentials"
+    )
+    assert head.down_revision == "0001_initial_tasks"

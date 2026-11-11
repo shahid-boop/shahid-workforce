@@ -30,7 +30,11 @@ import litellm.exceptions as litellm_exceptions
 
 from services.model_router.budgets import TaskBudget
 from services.model_router.fallback import ProviderError, ProviderRejectedError
-from services.model_router.providers import credential_for, resolve_model
+from services.model_router.providers import (
+    base_url_for,
+    credential_for,
+    resolve_model,
+)
 from services.model_router.router import (
     TextCall,
     available_chain,
@@ -63,6 +67,9 @@ FREE_TIER_MODELS: dict[str, tuple[str, ...]] = {
     "mistral": (),
     "openai": (),
     "anthropic": (),
+    # Local models are free by definition; the daemon must be running and
+    # the provider configured (settings page or OLLAMA_BASE_URL).
+    "ollama": ("llama3.2", "qwen2.5-coder"),
 }
 
 DEFAULT_PRIMARY = "google/gemini-2.5-flash"
@@ -144,16 +151,28 @@ async def litellm_call(
     api_key = credential_for(resolved.provider)
     if api_key is None:
         raise ProviderError(f"no API key configured for provider {resolved.provider!r}")
+    base = base_url_for(resolved.provider)
 
     try:
-        response = await litellm.acompletion(
-            model=litellm_model(model),
-            messages=messages,
-            api_key=api_key,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            timeout=timeout,
-        )
+        if base is not None:
+            response = await litellm.acompletion(
+                model=litellm_model(model),
+                messages=messages,
+                api_key=api_key,
+                base_url=base,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                timeout=timeout,
+            )
+        else:
+            response = await litellm.acompletion(
+                model=litellm_model(model),
+                messages=messages,
+                api_key=api_key,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                timeout=timeout,
+            )
     except Exception as exc:  # classified into the router's error taxonomy
         raise _classify(exc, api_key) from exc
     return _extract_text(response, model)

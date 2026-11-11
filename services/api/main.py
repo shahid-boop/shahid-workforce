@@ -12,9 +12,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from database.connection import create_engine_for, create_session_factory
 from database.models import Base
+from database.repositories import credential_repository
 from services.api.config import Settings, settings_from_env
 from services.api.middleware.security import SecurityHeadersMiddleware
 from services.api.routes import agents, health, tasks
+from services.api.routes import settings as settings_routes
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -36,6 +38,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.engine = engine
     app.state.session_factory = create_session_factory(engine)
 
+    # Model-router credential reads must hit this same database, even when
+    # WORKFORCE_DATABASE_URL is not exported (dev default URL).
+    credential_repository.set_runtime_database_url(settings.database_url)
+
     # Development convenience: create the SQLite schema automatically.
     # Production schema is managed with alembic and never mutated at startup.
     if not settings.is_production:
@@ -52,6 +58,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health.router)
     app.include_router(tasks.router)
     app.include_router(agents.router)
+    app.include_router(settings_routes.router)
     return app
 
 

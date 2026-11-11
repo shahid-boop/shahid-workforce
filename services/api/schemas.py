@@ -67,3 +67,28 @@ class AgentList(BaseModel):
 
     items: list[AgentOut]
     count: int
+
+
+class ProviderKeyUpdate(BaseModel):
+    """Payload for storing a provider key (and optional endpoint) manually."""
+
+    api_key: str | None = Field(default=None, min_length=1, max_length=4096)
+    base_url: str | None = Field(default=None, max_length=500)
+
+
+class ProviderStatus(BaseModel):
+    """Provider credential status; the full key is never returned."""
+
+    provider: str
+    configured: bool
+    source: str | None = None  # "env" | "stored"
+    key_masked: str | None = None
+    base_url: str | None = None
+    stored: bool = False
+
+
+class ProviderStatusList(BaseModel):
+    """Every provider known to the model router."""
+
+    items: list[ProviderStatus]
+    count: int
