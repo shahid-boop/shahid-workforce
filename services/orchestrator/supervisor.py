@@ -22,8 +22,21 @@ AgentRunner = Callable[[AgentDefinition, AgentContext], Awaitable[str]]
 async def default_agent_runner(
     definition: AgentDefinition, ctx: AgentContext
 ) -> str:
-    """Execute an agent without calling a model (template placeholder)."""
-    return await TemplateAgent(definition).run(ctx)
+    """Execute an agent through the configured LLM chain.
+
+    Falls back to the template placeholder when no provider credential is
+    configured, so the orchestrator keeps working before any key exists.
+    """
+    from services.model_router.llm import complete_messages
+
+    agent = TemplateAgent(definition)
+    text = await complete_messages(
+        agent.build_messages(ctx),
+        agent_model=definition.model,
+    )
+    if text is None:
+        return await agent.run(ctx)
+    return text
 
 
 class StepFailed(RuntimeError):

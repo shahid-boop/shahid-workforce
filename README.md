@@ -30,7 +30,7 @@ Incremental build-out (each step ships with tests and a green CI):
 - ✅ `agents/` - registry, prompt loading, shared agent interface
 - ✅ `services/orchestrator` - routing, supervisor, LangGraph task graph
 - ✅ `apps/dashboard` - Next.js console: task board, task detail/progress, agents page, `/api` proxy routes
-- ✅ `services/model_router` - 6 providers, budgets, fallback with billing preflight
+- ✅ `services/model_router` - 6 providers, budgets, fallback with billing preflight; **real LLM calls via LiteLLM with free-tier defaults** (key-less runs fall back to templates)
 - ✅ `services/workers` - scheduler (memory + Redis) and task worker with retries
 - ✅ `tools/` - filesystem (jailed), terminal, database, github, testing, browser
 - ✅ `sandbox/` - hardened Docker execution policy with local opt-in

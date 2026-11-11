@@ -51,6 +51,39 @@ export WORKFORCE_API_BASE_URL=http://127.0.0.1:8000
 npm run dev
 ```
 
+## LLM API keys (free tier)
+
+Agents call a real model through LiteLLM as soon as **any** provider key
+is present; with no key configured they fall back to the template
+placeholder, so the stack keeps working before you sign up anywhere.
+Set any one of these (all offer free tiers):
+
+```bash
+# Google Gemini - free Flash/Flash-Lite tier: https://aistudio.google.com/apikey
+export GEMINI_API_KEY=...
+
+# Groq - free tier with per-day rate limits: https://console.groq.com/keys
+export GROQ_API_KEY=...
+
+# OpenRouter - free ":free" model ids: https://openrouter.ai/keys
+export OPENROUTER_API_KEY=...
+
+# Paid providers work too:
+export OPENAI_API_KEY=...        # or ANTHROPIC_API_KEY / MISTRAL_API_KEY
+```
+
+Model selection (defaults are free-tier models; override per environment):
+
+```bash
+export WORKFORCE_MODEL_PRIMARY=google/gemini-2.5-flash
+export WORKFORCE_MODEL_FALLBACKS=groq/llama-3.3-70b-versatile,openrouter/nvidia/nemotron-3.5-lightning:free
+```
+
+The chain drops models whose key is missing, rotates on rate limits /
+timeouts / 5xx / auth errors, and aborts immediately on request-shape
+errors. API keys are passed straight to the provider, never logged and
+redacted from any error message.
+
 ## Database migrations
 
 ```bash
@@ -73,7 +106,7 @@ docker compose up --build
 ## Tests
 
 ```bash
-pytest -q                # unit + integration + security + e2e (219+ tests)
+pytest -q                # unit + integration + security + e2e (244+ tests)
 ruff check .             # lint
 mypy .                   # type check (runs in CI)
 cd apps/dashboard
