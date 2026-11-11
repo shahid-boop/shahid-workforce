@@ -7,16 +7,58 @@ still resolves ``services.api.main:app`` normally.
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exception_handlers import (
+    http_exception_handler,
+    request_validation_exception_handler,
+)
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from database.connection import create_engine_for, create_session_factory
 from database.models import Base
 from database.repositories import credential_repository
 from services.api.config import Settings, settings_from_env
+from services.api.dashboard import install_dashboard
 from services.api.middleware.security import SecurityHeadersMiddleware
 from services.api.routes import agents, health, tasks
 from services.api.routes import settings as settings_routes
+
+
+def register_api_error_handlers(app: FastAPI) -> None:
+    """`/api/*` mirrors answer with the dashboard's `{error}` JSON shape.
+
+    The Next.js proxies translate FastAPI's `{"detail": ...}` into
+    `{"error": ...}` for the browser. In the packaged build the dashboard
+    calls these same endpoints directly through the `/api` prefix, so the
+    translation happens here instead - at the cost of one path check.
+    Every other route keeps FastAPI's default shapes.
+    """
+
+    def is_api_path(request: Request) -> bool:
+        return request.url.path.startswith("/api/")
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_exc(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+        if is_api_path(request):
+            detail = exc.detail
+            message = detail if isinstance(detail, str) else "request failed"
+            return JSONResponse(
+                {"error": message},
+                status_code=exc.status_code,
+                headers=exc.headers,
+            )
+        return await http_exception_handler(request, exc)  # type: ignore[return-value]
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exc(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        if is_api_path(request):
+            return JSONResponse({"error": "validation failed"}, status_code=422)
+        return await request_validation_exception_handler(request, exc)  # type: ignore[return-value]
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -54,11 +96,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    register_api_error_handlers(app)
 
     app.include_router(health.router)
     app.include_router(tasks.router)
     app.include_router(agents.router)
     app.include_router(settings_routes.router)
+
+    # `/api/*` mirrors of the dashboard-facing routers: identical handlers
+    # and JSON, but with the `{error}` shape the browser client expects.
+    # In dev the Next.js proxies call the unprefixed routes instead.
+    app.include_router(tasks.router, prefix="/api")
+    app.include_router(agents.router, prefix="/api")
+    app.include_router(settings_routes.router, prefix="/api")
+
+    # Packaged build: serve the static dashboard export from this process.
+    # Registered last so every API route keeps priority over the catch-all.
+    if settings.dashboard_dir:
+        install_dashboard(app, settings.dashboard_dir, settings.api_key)
     return app
 
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import type { Task, TaskStatus } from "@/lib/api";
+import { apiFetch } from "@/lib/client-api";
 
 /** Ordered pipeline used for the progress indicator. */
 const PIPELINE: TaskStatus[] = [
@@ -41,7 +42,7 @@ export function TaskDetail({ taskId }: { taskId: string }) {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
+      const response = await apiFetch(`/api/tasks/${taskId}`, {
         cache: "no-store",
       });
       if (response.status === 404) {

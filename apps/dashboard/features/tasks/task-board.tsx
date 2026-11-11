@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { TaskForm } from "@/components/task-form";
 import { TaskList } from "@/components/task-list";
 import type { Task } from "@/lib/api";
+import { apiFetch } from "@/lib/client-api";
 
 interface TaskBoardState {
   tasks: Task[];
@@ -26,7 +27,7 @@ export function TaskBoard() {
   const load = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await fetch("/api/tasks?limit=50", { cache: "no-store" });
+      const response = await apiFetch("/api/tasks?limit=50", { cache: "no-store" });
       if (!response.ok) {
         const body = (await response.json()) as { error?: string };
         throw new Error(body.error ?? `request failed (${response.status})`);
@@ -47,7 +48,7 @@ export function TaskBoard() {
   }, [load]);
 
   const create = async (title: string) => {
-    const response = await fetch("/api/tasks", {
+    const response = await apiFetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
@@ -60,7 +61,7 @@ export function TaskBoard() {
   };
 
   const remove = async (taskId: string) => {
-    const response = await fetch(`/api/tasks/${taskId}`, { method: "DELETE" });
+    const response = await apiFetch(`/api/tasks/${taskId}`, { method: "DELETE" });
     if (!response.ok && response.status !== 404) {
       const body = (await response.json()) as { error?: string };
       throw new Error(body.error ?? `delete failed (${response.status})`);

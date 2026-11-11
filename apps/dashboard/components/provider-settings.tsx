@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { ProviderStatus } from "@/lib/api";
+import { apiFetch } from "@/lib/client-api";
 
 const PROVIDER_LABELS: Record<string, string> = {
   openai: "OpenAI",
@@ -41,7 +42,7 @@ export function ProviderSettings() {
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/settings/providers", {
+      const response = await apiFetch("/api/settings/providers", {
         cache: "no-store",
       });
       if (!response.ok) {
@@ -81,7 +82,7 @@ export function ProviderSettings() {
     }
     setState((prev) => ({ ...prev, error: null, notice: null }));
     try {
-      const response = await fetch(`/api/settings/providers/${provider}`, {
+      const response = await apiFetch(`/api/settings/providers/${provider}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -111,7 +112,7 @@ export function ProviderSettings() {
   async function remove(provider: string) {
     setState((prev) => ({ ...prev, error: null, notice: null }));
     try {
-      const response = await fetch(`/api/settings/providers/${provider}`, {
+      const response = await apiFetch(`/api/settings/providers/${provider}`, {
         method: "DELETE",
       });
       const body = (await response.json()) as { error?: string };

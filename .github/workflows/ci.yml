@@ -42,3 +42,5 @@ jobs:
         run: npm run build
         env:
           WORKFORCE_API_KEY: ci-placeholder-key
+      - name: Static export (packaged mode)
+        run: npm run build:static

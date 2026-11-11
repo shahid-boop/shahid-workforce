@@ -126,6 +126,24 @@ and the provider becomes available; set `OLLAMA_BASE_URL` for an
 environment-only setup. New keys take effect for the next task without a
 restart.
 
+## Packaged (static) mode
+
+`npm run build:static` exports the dashboard as pure static HTML in
+`apps/dashboard/out/` (temporarily moving the `app/api` proxies aside —
+stop `npm run dev` first on Windows). Point the API at it and it serves
+the whole UI itself:
+
+```bash
+export WORKFORCE_DASHBOARD_DIR=apps/dashboard/out
+python -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
+# open http://127.0.0.1:8000/ - no Node.js process required
+```
+
+The API then also answers `/api/*` itself (the dashboard's fetch paths),
+returning the same JSON with the browser-facing `{"error": ...}` shape,
+and injects `window.__WF_KEY` into every served HTML page so `apiFetch`
+can authenticate. This is the basis of the Windows EXE build.
+
 ## Database migrations
 
 ```bash

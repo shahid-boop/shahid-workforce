@@ -15,7 +15,9 @@ export function TaskList({ tasks, onDelete }: TaskListProps) {
         <li key={task.id} className="task-row">
           <div>
             <div className="task-title">
-              <Link href={`/tasks/${task.id}`}>{task.title}</Link>
+              <Link href={`/tasks?id=${encodeURIComponent(task.id)}`}>
+                {task.title}
+              </Link>
             </div>
             {task.description ? (
               <div className="task-desc">{task.description}</div>

@@ -18,6 +18,8 @@ build/
 # Node
 node_modules/
 .next/
+out/
+.static-stash/
 dist/
 npm-debug.log*
 

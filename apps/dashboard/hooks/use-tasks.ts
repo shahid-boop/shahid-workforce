@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { Task } from "@/lib/api";
+import { apiFetch } from "@/lib/client-api";
 
 interface UseTasksResult {
   tasks: Task[];
@@ -24,7 +25,7 @@ export function useTasks(limit = 50): UseTasksResult {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/tasks?limit=${limit}`, {
+      const response = await apiFetch(`/api/tasks?limit=${limit}`, {
         cache: "no-store",
       });
       if (!response.ok) {

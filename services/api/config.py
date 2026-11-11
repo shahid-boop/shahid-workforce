@@ -19,6 +19,9 @@ class Settings:
     # Development executes tasks inline after creation; production leaves
     # them queued for the Redis/RQ worker.
     auto_run: bool = False
+    # Packaged (EXE) mode: directory of the static dashboard export to
+    # serve from this API process. None = API-only (dev/CI).
+    dashboard_dir: str | None = None
 
     @property
     def is_production(self) -> bool:
@@ -45,4 +48,5 @@ def settings_from_env() -> Settings:
         ),
         cors_origins=origins,
         auto_run=auto_run,
+        dashboard_dir=os.environ.get("WORKFORCE_DASHBOARD_DIR") or None,
     )

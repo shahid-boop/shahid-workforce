@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { Agent } from "@/lib/api";
+import { apiFetch } from "@/lib/client-api";
 
 interface AgentDirectoryState {
   agents: Agent[];
@@ -22,7 +23,7 @@ export function AgentDirectory() {
     let cancelled = false;
     (async () => {
       try {
-        const response = await fetch("/api/agents", { cache: "no-store" });
+        const response = await apiFetch("/api/agents", { cache: "no-store" });
         if (!response.ok) {
           const body = (await response.json()) as { error?: string };
           throw new Error(body.error ?? `request failed (${response.status})`);
