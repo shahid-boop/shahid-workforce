@@ -22,8 +22,17 @@ drive everything.
 
 </div>
 
----
+👨‍💻 Developer
 
+<p align="center">
+  <strong>Shahid Bashir</strong><br>
+A Windows desktop AI assistant powered by a multi-agent workforce
+</p><p align="center">
+  <a href="https://github.com/shahid-boop">
+    <img src="https://img.shields.io/badge/GitHub-shahid--boop-black?style=for-the-badge&logo=github" alt="Shahid Bashir GitHub">
+ 
+---
+                          
 ## 📸 Screenshots
 
 ### 1. Task board — create & monitor work
