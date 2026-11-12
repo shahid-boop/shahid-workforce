@@ -177,6 +177,38 @@ returning the same JSON with the browser-facing `{"error": ...}` shape,
 and injects `window.__WF_KEY` into every served HTML page so `apiFetch`
 can authenticate. This is the basis of the Windows EXE build.
 
+## Android (Termux)
+
+The packaged static mode also runs on a phone — no PC, no Node.js:
+
+```bash
+# Termux (install from F-Droid), then:
+pkg update -y && pkg upgrade -y
+pkg install python git curl unzip     # + `clang rust` only if pip must compile
+
+git clone https://github.com/shahid-boop/shahid-workforce.git
+cd shahid-workforce
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+# Prebuilt dashboard from the release zip (Next.js' SWC binary does not
+# run on Termux's bionic libc, so do not build it locally):
+curl -L -o /tmp/wf.zip \
+  https://github.com/shahid-boop/shahid-workforce/releases/download/v0.1.0/ShahidWorkforce-win64.zip
+unzip -q /tmp/wf.zip -d /tmp/wf
+cp -r /tmp/wf/ShahidWorkforce/_internal/dashboard apps/dashboard/out
+
+export WORKFORCE_DASHBOARD_DIR="$PWD/apps/dashboard/out"
+termux-wake-lock                       # keep the server alive when idle
+python -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
+# open http://127.0.0.1:8000/ in the phone browser
+```
+
+Dev mode needs no API key (auth stays open until a key is configured),
+the SQLite schema is created at startup and tasks auto-run inline. Add
+real LLM keys from the Settings page. The Windows EXE, `start-dev.bat`
+and the Docker sandbox do not run inside Termux.
+
 ## Database migrations
 
 ```bash

@@ -149,7 +149,7 @@ apply to the very next task — no restart required.
 
 ## 📥 Installation & setup
 
-Three ways to run it — pick whichever is easiest for you.
+Four ways to run it — pick whichever is easiest for you.
 
 ### Option A — Windows EXE *(no Python, no Node, easiest)*
 
@@ -220,6 +220,65 @@ npm run dev                              # → http://localhost:3000
 Open **http://localhost:3000** — the dashboard talks to the API on
 `:8000`. Full details, Docker stack and production notes:
 [`docs/setup.md`](docs/setup.md).
+
+### Option D — Android via Termux *(phone/tablet, no PC needed)*
+
+Run the whole stack on your phone — only Python is needed, the dashboard
+ships prebuilt inside the release zip.
+
+1. Install **[Termux from F-Droid](https://f-droid.org/packages/com.termux/)**
+   (the Play Store build is outdated and broken).
+
+2. Update packages and install the basics:
+
+```bash
+pkg update -y && pkg upgrade -y
+pkg install python git curl unzip
+# Only if `pip install` below complains about compiling something:
+# pkg install clang rust
+```
+
+3. Clone the repo and install the Python dependencies
+   (first run can take a few minutes on a phone):
+
+```bash
+git clone https://github.com/shahid-boop/shahid-workforce.git
+cd shahid-workforce
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+4. **Fetch the prebuilt dashboard** — the Windows release zip contains a
+   plain static build that works on any OS, so no Node.js is required:
+
+```bash
+curl -L -o /tmp/wf.zip \
+  https://github.com/shahid-boop/shahid-workforce/releases/download/v0.1.0/ShahidWorkforce-win64.zip
+unzip -q /tmp/wf.zip -d /tmp/wf
+cp -r /tmp/wf/ShahidWorkforce/_internal/dashboard apps/dashboard/out
+```
+
+5. Start the single-process server (API + dashboard together) and open
+   **http://127.0.0.1:8000** in your phone browser:
+
+```bash
+export WORKFORCE_DASHBOARD_DIR="$PWD/apps/dashboard/out"
+python -m uvicorn services.api.main:app --host 127.0.0.1 --port 8000
+```
+
+**Termux notes**
+
+- Run `termux-wake-lock` first — otherwise Android suspends the server
+  when the screen turns off.
+- Dev mode needs **no API key** and tasks **auto-run inline**; the
+  SQLite database is created in the repo folder automatically. Add real
+  LLM keys later from the **Settings** page.
+- `start-dev.bat` and the EXE are Windows-only; the Docker sandbox
+  can't run inside Termux (the built-in safe tool defaults still apply).
+- Building the dashboard natively (`npm run build:static`) usually
+  fails on Termux because Next.js's SWC binary targets glibc — the
+  prebuilt `dashboard/` folder above avoids Node.js completely.
 
 ### 🔑 Add an LLM key *(no terminal needed)*
 
@@ -313,6 +372,7 @@ No feature is considered working until its tests pass in CI.
 | Install method | Requirements |
 |---|---|
 | **Windows EXE** | Nothing — just Windows 10/11 |
+| **Android (Termux)** | [Termux from F-Droid](https://f-droid.org/packages/com.termux/) + Python (dashboard ships prebuilt) |
 | **From source** | Python 3.12+ · Node.js 22+ · (optional) Docker for the sandbox · Redis + PostgreSQL for queued tasks |
 
 ## 🔐 Security
